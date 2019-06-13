@@ -1,3 +1,5 @@
+import os
+
 from scrapy import Request
 from scrapy.pipelines.images import ImagesPipeline
 import requests
@@ -22,8 +24,14 @@ class PxiviPipeline(object):
         url=urls[0]
         self.header2['Referer']=item['referer']
         imgcontent=requests.get(url,headers=self.header2)
+        if imgcontent.status_code!=200:
+            print("请求失败，重试",imgcontent.status_code)
+            return item
         filename=item['picname']
         file=self.path+filename
+        if os.path.exists(file):
+            print("文件已经存在")
+            return item
         with open(file,'wb') as f:
             f.write(imgcontent.content)
         print("已保存图片")

@@ -35,20 +35,19 @@ class pxivi(scrapy.Spider):
 
 
     def parse(self, response):
-        print("这里是pixiv")
-        # self.parse_dayrankpic(response)
-        for i in range(1,4):
-            xpath='//*[@id="column-misc"]/section[2]/ol/li['+str(i)+']/div[1]/a/@href'
-            urllist=response.xpath(xpath).extract()
-            url=urllist[0]
-            targeturl=self.start_urls[0]+url[1:]
-            i=targeturl.rfind('&')
-            targeturl=targeturl[:i]
-            yield scrapy.Request(url=targeturl,callback=self.getpicture,headers=self.header)
+        print("欢迎使用(*^▽^*)")
+        for i in range(1, 4):
+            xpath = '//*[@id="column-misc"]/section[2]/ol/li[' + str(i) + ']/div[1]/a/@href'
+            urllist = response.xpath(xpath).extract()
+            url = urllist[0]
+            targeturl = self.start_urls[0] + url[1:]
+            i = targeturl.rfind('&')
+            targeturl = targeturl[:i]
+            yield scrapy.Request(url=targeturl, callback=self.getpicture, headers=self.header)
+
 
 
     def parse_dayrankpic(self,response):
-
         pass
 
     def getpicture(self,response):
