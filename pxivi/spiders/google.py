@@ -1,6 +1,6 @@
 import scrapy
 
-
+#测试方法
 class googelSpider(scrapy.Spider):
 
     name="google"
