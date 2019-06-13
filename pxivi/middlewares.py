@@ -71,7 +71,7 @@ class PxiviDownloaderMiddleware(object):
     def process_request(self, request, spider):
         # Called for each request that goes through the downloader
         # middleware.
-        request.meta['proxy']='http://127.0.0.1:60466'
+        # request.meta['proxy']='http://127.0.0.1:57755'
         # Must either:
         # - return None: continue processing this request
         # - or return a Response object

@@ -64,9 +64,11 @@ DOWNLOADER_MIDDLEWARES = {
 
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-#    'pxivi.pipelines.PxiviPipeline': 300,
-#}
+IMAGES_STORE = 'D:\\vpn'
+ITEM_PIPELINES = {
+   # 'pxivi.pipelines.PxiviPipeline': 300,
+   'pxivi.pipelines.PxiviImagePipeline':300
+}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://doc.scrapy.org/en/latest/topics/autothrottle.html
