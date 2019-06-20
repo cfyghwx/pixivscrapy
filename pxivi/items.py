@@ -11,7 +11,8 @@ import scrapy
 class PxiviItem(scrapy.Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
-    referer=scrapy.Field()
+    referer=scrapy.Field();
+    choicefuc=scrapy.Field();
     picname=scrapy.Field();
     image_urls =scrapy.Field();
     pass

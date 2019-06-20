@@ -17,20 +17,21 @@ class PxiviPipeline(object):
         'User-Agent': agent,
         'Referer': '',
     }
-    path = "E:\\pixiv\\dayrank\\"
+    path = ["","E:\\pixiv\\dayrank\\","E:\\pixiv\\bookmark\\"]
     def process_item(self, item, spider):
         print("prr")
         urls=item['image_urls']
         url=urls[0]
         self.header2['Referer']=item['referer']
+        filename = item['picname']
+        axis = int(item['choicefuc'])
+        file = self.path[axis] + filename
+        if os.path.exists(file):
+            print("文件已经存在")
+            return item
         imgcontent=requests.get(url,headers=self.header2)
         if imgcontent.status_code!=200:
             print("请求失败，重试",imgcontent.status_code)
-            return item
-        filename=item['picname']
-        file=self.path+filename
-        if os.path.exists(file):
-            print("文件已经存在")
             return item
         with open(file,'wb') as f:
             f.write(imgcontent.content)

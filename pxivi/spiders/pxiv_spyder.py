@@ -11,7 +11,7 @@ class pxivi(scrapy.Spider):
     # filepath="../password/password.txt"
     allowed_domains=[]
 
-    start_urls=["https://www.pixiv.net/"]
+    start_urls=["https://www.pixiv.net/","https://www.pixiv.net/bookmark.php"]
 
     login_url="https://accounts.pixiv.net/login?lang=zh&source=pc&view_type=page&ref=wwwtop_accounts_index"
 
@@ -35,30 +35,62 @@ class pxivi(scrapy.Spider):
 
 
     def parse(self, response):
-        print("欢迎使用(*^▽^*)")
-        for i in range(1, 4):
-            xpath = '//*[@id="column-misc"]/section[2]/ol/li[' + str(i) + ']/div[1]/a/@href'
-            urllist = response.xpath(xpath).extract()
+        print("-------欢迎使用(*^▽^*)-----------")
+        print("当前功能:1.日榜爬取 2.收藏一键下载")
+        choice=input()
+        item=PxiviItem()
+        #爬取日榜
+        if choice=='1':
+            for i in range(1, 4):
+                xpath = '//*[@id="column-misc"]/section[2]/ol/li[' + str(i) + ']/div[1]/a/@href'
+                urllist = response.xpath(xpath).extract()
+                url = urllist[0]
+                targeturl = self.start_urls[0] + url[1:]
+                i = targeturl.rfind('&')
+                targeturl = targeturl[:i]
+                item['choicefuc']=1
+                yield scrapy.Request(url=targeturl,meta={'item': item},callback=self.getpicture, headers=self.header)
+
+        #收藏一键下载
+        if choice=='2':
+            item['choicefuc'] = 2
+            yield scrapy.Request(url=self.start_urls[1],meta={'item': item,'page': 1},callback=self.parse_bookmark,headers=self.header)
+
+
+    def parse_bookmark(self,response):
+        print("当前页面第"+str(response.meta['page'])+"页")
+        item = response.meta['item']
+        #一个页面最大的图片数量
+        max_pic=20
+        #赞的阈值
+        threshold=50000
+        for i in range(1,max_pic+1):
+            likenumxpath='//*[@id="wrapper"]/div[1]/div[1]/div[1]/form/div[1]/ul/li['+str(i)+']/ul/li/a/text()'
+            urllistxpath='//*[@id="wrapper"]/div[1]/div[1]/div[1]/form/div[1]/ul/li['+str(i)+']/a[1]/@href'
+            likenum=response.xpath(likenumxpath).extract()
+            urllist=response.xpath(urllistxpath).extract()
+            if len(likenum)>0 and (int(likenum[0])<threshold):
+                continue
             url = urllist[0]
-            targeturl = self.start_urls[0] + url[1:]
-            i = targeturl.rfind('&')
-            targeturl = targeturl[:i]
-            yield scrapy.Request(url=targeturl, callback=self.getpicture, headers=self.header)
+            targeturl = self.start_urls[0] + url
+            yield scrapy.Request(url=targeturl,meta={'item': item},callback=self.getpicture)
+        next_url=response.xpath('//*[@id="wrapper"]/div[1]/div[1]/div[1]/nav[2]/div/span[2]/a//@href').extract()
+        if len(next_url)!=0:
+            nextpage=int(response.meta['page'])+1
+            nexturl=self.start_urls[1]+next_url[0]
+            yield scrapy.Request(url=nexturl,meta={'item': item,'page':nextpage},callback=self.parse_bookmark, headers=self.header)
 
-
-
-    def parse_dayrankpic(self,response):
-        pass
 
     def getpicture(self,response):
         # print(response.body.decode('utf-8'))
+        item=response.meta['item']
         script=response.xpath("/html/head/script[6]").extract()
         pattern=re.compile('"original":"(.+?)"')
         url=re.search(pattern,script[0])
         url=url.group(1)
         url=url.replace("\\","")
         print(url)
-        item=PxiviItem()
+        # item=PxiviItem()
         item['referer']=response.url
         item['image_urls']=[url]
         item['picname']=url.split("/")[-1]
